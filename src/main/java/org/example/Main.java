@@ -1,5 +1,8 @@
 
 void main() {
+
+        String selectedArea = "SE4";
+
         while (true) {
                 IO.println("Elpriser - Analysverktyg");
                 IO.println("========================");
@@ -12,7 +15,17 @@ void main() {
                 String makeChoice = IO.readln("Välj ett alternativ: ");
 
                 switch (makeChoice) {
-                        case "1" -> IO.println("Du valde elområde.");
+                        case "1" -> {
+                                String area = IO.readln("Välj elområde (SE1, SE2, SE3, SE4): ").trim().toUpperCase();
+
+                                if (area.equals("SE1") || area.equals("SE2") || area.equals("SE3") || area.equals("SE4")) {
+                                        selectedArea = area;
+                                IO.println("Valt elområde: " + selectedArea);
+                        } else {
+                                    IO.println("Ogiltigt elområde.");
+                                }
+                        }
+
                         case "2" -> IO.println("Du valde Min, Max och Medelpris.");
                         case "3" -> IO.println("Du valde att sortera priser.");
                         case "4" -> IO.println("Du valde bästa laddningstid.");
