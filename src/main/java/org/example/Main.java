@@ -16,7 +16,7 @@ void main() {
 
                 switch (makeChoice) {
                         case "1" -> {
-                                String area = IO.readln("Välj elområde (SE1, SE2, SE3, SE4): ").toUpperCase();
+                                String area = IO.readln("Välj elområde (SE1, SE2, SE3, SE4): ").trim().toUpperCase();
 
                                 if (area.equals("SE1") || area.equals("SE2") || area.equals("SE3") || area.equals("SE4")) {
                                         selectedArea = area;
