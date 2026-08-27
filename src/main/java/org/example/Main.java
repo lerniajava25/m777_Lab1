@@ -61,6 +61,36 @@ void main() {
                                                 ElectricityPrice[].class
                                         );
 
+                                        if (prices.length == 0) {
+                                                IO.println("Ingen prisdata hittades.");
+                                                continue;
+                                        }
+
+                                        double minPrice = prices[0].SEK_per_kWh();
+                                        double maxPrice = prices[0].SEK_per_kWh();
+                                        double totalPrice = 0;
+
+                                        for (ElectricityPrice price : prices) {
+                                                if (price.SEK_per_kWh() < minPrice) {
+                                                        minPrice = price.SEK_per_kWh();
+                                                }
+
+                                                if (price.SEK_per_kWh() > maxPrice) {
+                                                        maxPrice = price.SEK_per_kWh();
+                                                }
+
+                                                totalPrice += price.SEK_per_kWh();
+                                        }
+
+                                        double averagePrice = totalPrice / prices.length;
+
+                                        double minPriceOre = minPrice * 100;
+                                        double maxPriceOre = maxPrice * 100;
+                                        double averagePriceOre = averagePrice * 100;
+
+                                        IO.println("Lägsta pris: %.2f öre/kWh".formatted(minPriceOre));
+                                        IO.println("Högsta pris: %.2f öre/kWh".formatted(maxPriceOre));
+                                        IO.println("Medelpris: %.2f öre/kWh".formatted(averagePriceOre));
                                         IO.println("Antal prisposter: " + prices.length);
 
                                         IO.println(prices[0]);
