@@ -266,8 +266,6 @@ void main() {
                                                 IO.println("Kunde inte skriva till analysis.txt.");
                                         }
 
-                                        Files.writeString(filePath, fileContent);
-
                                         IO.println("Bästa laddningstid: "
                                                 + startLabel.substring(0, 2)
                                                 + "-"

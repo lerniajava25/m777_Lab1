@@ -1,4 +1,4 @@
-Elområde: SE4
+Elområde: SE2
 Datum: 2026-08-27
-Bästa laddningstid: 12-16
-Medelpris: 87,00 öre/kWh
+Bästa laddningstid: 11-15
+Medelpris: 68,18 öre/kWh
