@@ -61,6 +61,11 @@ void main() {
                                                 ElectricityPrice[].class
                                         );
 
+                                        if (prices.length == 0) {
+                                                IO.println("Ingen prisdata hittades.");
+                                                continue;
+                                        }
+
                                         double minPrice = prices[0].SEK_per_kWh();
                                         double maxPrice = prices[0].SEK_per_kWh();
                                         double totalPrice = 0;
