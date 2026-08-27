@@ -7,6 +7,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.time.OffsetDateTime;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 ElectricityPrice[] fetchPrices(String selectedArea, LocalDate today) throws Exception {
         String url = "https://www.elprisetjustnu.se/api/v1/prices/"
@@ -242,6 +244,23 @@ void main() {
 
                                         String startLabel = hourLabels[bestStartHour];
                                         String endLabel = hourLabels[bestStartHour + 3];
+
+                                        Path filePath = Path.of("analysis.txt");
+
+                                        String fileContent = """
+                                                Elområde: %s
+                                                Datum: %s
+                                                Bästa laddningstid: %s-%s
+                                                Medelpris: %.2f öre/kWh
+                                                """.formatted(
+                                                selectedArea,
+                                                today,
+                                                startLabel.substring(0, 2),
+                                                endLabel.substring(3, 5),
+                                                averageBestPrice * 100
+                                        );
+
+                                        Files.writeString(filePath, fileContent);
 
                                         IO.println("Bästa laddningstid: "
                                                 + startLabel.substring(0, 2)
