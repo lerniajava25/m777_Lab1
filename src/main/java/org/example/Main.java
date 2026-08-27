@@ -183,7 +183,80 @@ void main() {
                                 }
                         }
 
-                        case "4" -> IO.println("Du valde bästa laddningstid.");
+                        case "4" -> {
+                                try {
+                                        ElectricityPrice[] prices = fetchPrices(selectedArea, today);
+
+                                        if (prices.length < 4 || prices.length % 4 != 0) {
+                                                IO.println("Prisdata kunde inte delas upp i hela timmar.");
+                                                continue;
+                                        }
+
+                                        int numberOfHours = prices.length / 4;
+                                        double[] hourlyPrices = new double[numberOfHours];
+
+                                        String[] hourLabels = new String[numberOfHours];
+
+                                        for (int hour = 0; hour < numberOfHours; hour++) {
+                                                int startIndex = hour * 4;
+
+                                                OffsetDateTime startTime = OffsetDateTime.parse(prices[startIndex].time_start());
+                                                OffsetDateTime endTime = OffsetDateTime.parse(prices[startIndex + 3].time_end());
+
+                                                hourLabels[hour] = "%02d-%02d".formatted(
+                                                        startTime.getHour(),
+                                                        endTime.getHour()
+                                                );
+
+                                                hourlyPrices[hour] = (
+                                                        prices[startIndex].SEK_per_kWh()
+                                                                + prices[startIndex + 1].SEK_per_kWh()
+                                                                + prices[startIndex + 2].SEK_per_kWh()
+                                                                + prices[startIndex + 3].SEK_per_kWh()
+                                                ) / 4;
+                                        }
+
+                                        double firstFourHours =
+                                                hourlyPrices[0]
+                                                        + hourlyPrices[1]
+                                                        + hourlyPrices[2]
+                                                        + hourlyPrices[3];
+
+                                        double bestTotal = firstFourHours;
+                                        int bestStartHour = 0;
+
+                                        for (int startHour = 1; startHour <= numberOfHours - 4; startHour++) {
+                                                double currentTotal =
+                                                        hourlyPrices[startHour]
+                                                                + hourlyPrices[startHour + 1]
+                                                                + hourlyPrices[startHour + 2]
+                                                                + hourlyPrices[startHour + 3];
+
+                                                if (currentTotal < bestTotal) {
+                                                        bestTotal = currentTotal;
+                                                        bestStartHour = startHour;
+                                                }
+                                        }
+
+                                        double averageBestPrice = bestTotal / 4;
+
+                                        String startLabel = hourLabels[bestStartHour];
+                                        String endLabel = hourLabels[bestStartHour + 3];
+
+                                        IO.println("Bästa laddningstid: "
+                                                + startLabel.substring(0, 2)
+                                                + "-"
+                                                + endLabel.substring(3, 5));
+
+                                        IO.println("Medelpris: %.2f öre/kWh".formatted(
+                                                averageBestPrice * 100
+                                        ));
+
+                                } catch (Exception e) {
+                                        IO.println("Kunde inte hämta elpriser.");
+                                }
+                        }
+
                         case "e", "E" -> {
                                 IO.println("Programmet avslutas");
                         return;
