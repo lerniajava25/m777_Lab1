@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
+import java.time.OffsetDateTime;
 
 ElectricityPrice[] fetchPrices(String selectedArea, LocalDate today) throws Exception {
         String url = "https://www.elprisetjustnu.se/api/v1/prices/"
@@ -129,15 +130,26 @@ void main() {
                                 try {
                                         ElectricityPrice[] prices = fetchPrices(selectedArea, today);
 
-                                        if (prices.length < 96) {
-                                                IO.println("För lite prisdata för att beräkna timpriser.");
+                                        if (prices.length < 4 || prices.length % 4 != 0) {
+                                                IO.println("Prisdata kunde inte delas upp i hela timmar.");
                                                 continue;
                                         }
 
-                                        double[] hourlyPrices = new double[24];
+                                        int numberOfHours = prices.length / 4;
+                                        double[] hourlyPrices = new double[numberOfHours];
 
-                                        for (int hour = 0; hour < 24; hour++) {
+                                        String[] hourLabels = new String[numberOfHours];
+
+                                        for (int hour = 0; hour < numberOfHours; hour++) {
                                                 int startIndex = hour * 4;
+
+                                                OffsetDateTime startTime = OffsetDateTime.parse(prices[startIndex].time_start());
+                                                OffsetDateTime endTime = OffsetDateTime.parse(prices[startIndex + 3].time_end());
+
+                                                hourLabels[hour] = "%02d-%02d".formatted(
+                                                        startTime.getHour(),
+                                                        endTime.getHour()
+                                                );
 
                                                 hourlyPrices[hour] = (
                                                         prices[startIndex].SEK_per_kWh()
@@ -147,9 +159,9 @@ void main() {
                                                 ) / 4;
                                         }
 
-                                        Integer[] hours = new Integer[24];
+                                        Integer[] hours = new Integer[numberOfHours];
 
-                                        for (int hour = 0; hour < 24; hour++) {
+                                        for (int hour = 0; hour < numberOfHours; hour++) {
                                                 hours[hour] = hour;
                                         }
 
@@ -158,9 +170,8 @@ void main() {
                                                 (a, b) -> Double.compare(hourlyPrices[a], hourlyPrices[b])
                                         );
                                         for (int hour : hours) {
-                                                IO.println("%02d-%02d: %.2f öre/kWh".formatted(
-                                                        hour,
-                                                        (hour + 1) % 24,
+                                                IO.println("%s: %.2f öre/kWh".formatted(
+                                                        hourLabels[hour],
                                                         hourlyPrices[hour] * 100
                                                 ));
                                         }
