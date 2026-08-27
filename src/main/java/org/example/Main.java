@@ -5,8 +5,30 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
 
+ElectricityPrice[] fetchPrices(String selectedArea, LocalDate today) throws Exception {
+        String url = "https://www.elprisetjustnu.se/api/v1/prices/"
+                + today.getYear() + "/"
+                + "%02d".formatted(today.getMonthValue()) + "-"
+                + "%02d".formatted(today.getDayOfMonth()) + "_"
+                + selectedArea + ".json";
 
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+
+        HttpResponse<String> response = client.send(
+                request, HttpResponse.BodyHandlers.ofString()
+        );
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        return mapper.readValue(
+                response.body(),
+                ElectricityPrice[].class
+        );
+}
 
 void main() {
 
@@ -103,7 +125,53 @@ void main() {
                                 IO.println(url);
                         }
 
-                        case "3" -> IO.println("Du valde att sortera priser.");
+                        case "3" -> {
+                                try {
+                                        ElectricityPrice[] prices = fetchPrices(selectedArea, today);
+
+                                        if (prices.length < 96) {
+                                                IO.println("För lite prisdata för att beräkna timpriser.");
+                                                continue;
+                                        }
+
+                                        double[] hourlyPrices = new double[24];
+
+                                        for (int hour = 0; hour < 24; hour++) {
+                                                int startIndex = hour * 4;
+
+                                                hourlyPrices[hour] = (
+                                                        prices[startIndex].SEK_per_kWh()
+                                                                + prices[startIndex + 1].SEK_per_kWh()
+                                                                + prices[startIndex + 2].SEK_per_kWh()
+                                                                + prices[startIndex + 3].SEK_per_kWh()
+                                                ) / 4;
+                                        }
+
+                                        Integer[] hours = new Integer[24];
+
+                                        for (int hour = 0; hour < 24; hour++) {
+                                                hours[hour] = hour;
+                                        }
+
+                                        Arrays.sort(
+                                                hours,
+                                                (a, b) -> Double.compare(hourlyPrices[a], hourlyPrices[b])
+                                        );
+                                        for (int hour : hours) {
+                                                IO.println("%02d-%02d: %.2f öre/kWh".formatted(
+                                                        hour,
+                                                        (hour + 1) % 24,
+                                                        hourlyPrices[hour] * 100
+                                                ));
+                                        }
+
+                                } catch (Exception e) {
+
+                                        IO.println("Kunde inte hämta elpriser.");
+
+                                }
+                        }
+
                         case "4" -> IO.println("Du valde bästa laddningstid.");
                         case "e", "E" -> {
                                 IO.println("Programmet avslutas");
