@@ -62,29 +62,8 @@ void main() {
                         }
 
                         case "2" -> {
-                                String url = "https://www.elprisetjustnu.se/api/v1/prices/"
-                                        + today.getYear() + "/"
-                                        + "%02d".formatted(today.getMonthValue()) + "-"
-                                        + "%02d".formatted(today.getDayOfMonth()) + "_"
-                                        + selectedArea + ".json";
-
-                                HttpClient client = HttpClient.newHttpClient();
-                                HttpRequest request = HttpRequest.newBuilder()
-                                        .uri(URI.create(url))
-                                        .build();
                                 try {
-                                        HttpResponse<String> response = client.send(
-                                                request, HttpResponse.BodyHandlers.ofString()
-                                        );
-
-                                        IO.println("Statuskod: " + response.statusCode());
-
-                                        ObjectMapper mapper = new ObjectMapper();
-
-                                        ElectricityPrice[] prices = mapper.readValue(
-                                                response.body(),
-                                                ElectricityPrice[].class
-                                        );
+                                        ElectricityPrice[] prices = fetchPrices(selectedArea, today);
 
                                         if (prices.length == 0) {
                                                 IO.println("Ingen prisdata hittades.");
@@ -116,16 +95,12 @@ void main() {
                                         IO.println("Lägsta pris: %.2f öre/kWh".formatted(minPriceOre));
                                         IO.println("Högsta pris: %.2f öre/kWh".formatted(maxPriceOre));
                                         IO.println("Medelpris: %.2f öre/kWh".formatted(averagePriceOre));
-                                        IO.println("Antal prisposter: " + prices.length);
-
-                                        IO.println(prices[0]);
 
                                 } catch (Exception e) {
                                         IO.println("Kunde inte hämta elpriser.");
                                         IO.println(e.getMessage());
                                 }
 
-                                IO.println(url);
                         }
 
                         case "3" -> {
@@ -189,7 +164,7 @@ void main() {
                                 try {
                                         ElectricityPrice[] prices = fetchPrices(selectedArea, today);
 
-                                        if (prices.length < 4 || prices.length % 4 != 0) {
+                                        if (prices.length < 16 || prices.length % 4 != 0) {
                                                 IO.println("För lite prisdata för att hitta 4 sammanhängande timmar.");
                                                 continue;
                                         }
