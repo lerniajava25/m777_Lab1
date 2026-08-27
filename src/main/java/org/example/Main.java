@@ -188,7 +188,7 @@ void main() {
                                         ElectricityPrice[] prices = fetchPrices(selectedArea, today);
 
                                         if (prices.length < 4 || prices.length % 4 != 0) {
-                                                IO.println("Prisdata kunde inte delas upp i hela timmar.");
+                                                IO.println("För lite prisdata för att hitta 4 sammanhängande timmar.");
                                                 continue;
                                         }
 
