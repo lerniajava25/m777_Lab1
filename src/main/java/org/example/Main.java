@@ -260,6 +260,12 @@ void main() {
                                                 averageBestPrice * 100
                                         );
 
+                                        try {
+                                                Files.writeString(filePath, fileContent);
+                                        } catch (Exception e) {
+                                                IO.println("Kunde inte skriva till analysis.txt.");
+                                        }
+
                                         Files.writeString(filePath, fileContent);
 
                                         IO.println("Bästa laddningstid: "
